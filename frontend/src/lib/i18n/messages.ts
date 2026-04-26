@@ -48,6 +48,9 @@ export const messages: Record<Language, Record<string, string>> = {
     "signin.contactAdmin": "Contact Admin",
     "signin.footerText": "Buy • Repair • Sell • Debt/Credit tracking",
     "signin.uiOnly": "UI only",
+    "signin.demoCredentials": "Demo Credentials",
+    "signin.demoUsername": "Username",
+    "signin.demoPassword": "Password",
     "signin.invalidCredentials": "Invalid credentials. Please check your identifier and password.",
     "signin.connectionError":
       "Could not connect to server. Check backend status and API URL.",
@@ -855,6 +858,9 @@ export const messages: Record<Language, Record<string, string>> = {
     "signin.contactAdmin": "Admin bilan bog'laning",
     "signin.footerText": "Xarid • Ta'mir • Sotuv • Qarzdorlik/Kredit hisobi",
     "signin.uiOnly": "Faqat UI",
+    "signin.demoCredentials": "Demo Kirish Ma'lumotlari",
+    "signin.demoUsername": "Username",
+    "signin.demoPassword": "Parol",
     "signin.invalidCredentials":
       "Login yoki parol noto'g'ri. Ma'lumotlarni tekshirib qayta urinib ko'ring.",
     "signin.connectionError":

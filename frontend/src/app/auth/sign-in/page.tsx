@@ -10,7 +10,6 @@ import type { LocationState } from "./types";
 import { SignInTopControls } from "./components/sign-in-top-controls";
 import { SignInFormCard } from "./components/sign-in-form-card";
 
-const DEMO_IDENTIFIER = import.meta.env.VITE_DEMO_IDENTIFIER ?? "admin@shop.com";
 const DEMO_USERNAME = import.meta.env.VITE_DEMO_USERNAME ?? "admin";
 const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD ?? "Admin123";
 
@@ -122,11 +121,14 @@ export default function SignInPage() {
                   </h1>
                 </div>
 
-                <div className="mb-4 rounded-xl border border-amber-200/70 bg-amber-50/80 p-3 text-sm text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100">
-                  <p className="font-semibold">Demo Credentials</p>
-                  <p className="mt-1">Identifier: {DEMO_IDENTIFIER}</p>
-                  <p>Username: {DEMO_USERNAME}</p>
-                  <p>Password: {DEMO_PASSWORD}</p>
+                <div className="mb-4 rounded-xl border bg-card p-3 text-sm text-foreground">
+                  <p className="font-semibold">{t("signin.demoCredentials")}</p>
+                  <p className="mt-1">
+                    {t("signin.demoUsername")}: {DEMO_USERNAME}
+                  </p>
+                  <p>
+                    {t("signin.demoPassword")}: {DEMO_PASSWORD}
+                  </p>
                 </div>
 
                 <SignInFormCard
