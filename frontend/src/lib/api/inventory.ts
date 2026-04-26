@@ -1,0 +1,173 @@
+import type { AxiosError } from 'axios'
+import api from '@/lib/api'
+import type { InventoryCondition, InventoryStatus } from '@/types/inventory'
+
+export type { InventoryCondition, InventoryStatus }
+
+export type InventoryListParams = {
+  page?: number
+  limit?: number
+  q?: string
+  status?: InventoryStatus
+  condition?: InventoryCondition
+}
+
+export type InventoryListItem = {
+  id: number
+  itemName: string
+  brand: string
+  model: string
+  storage?: string | null
+  color?: string | null
+  imei: string
+  serialNumber?: string | null
+  purchaseId?: number | null
+  saleId?: number | null
+  condition: InventoryCondition
+  status: InventoryStatus
+  cost: number
+  purchaseCost: number
+  repairCost: number
+  expectedSalePrice?: number | null
+  knownIssues?: string | null
+}
+
+export type InventoryActivityType =
+  | 'CREATED'
+  | 'PURCHASED'
+  | 'SOLD'
+  | 'STATUS_CHANGED'
+  | 'MOVED_TO_REPAIR'
+  | 'MARKED_DONE'
+
+export type InventoryActivity = {
+  id: number
+  type: InventoryActivityType
+  fromStatus?: InventoryStatus | null
+  toStatus: InventoryStatus
+  notes?: string | null
+  happenedAt: string
+}
+
+export type InventoryDetailItem = {
+  id: number
+  imei: string
+  brand: string
+  model: string
+  storage?: string | null
+  color?: string | null
+  condition: InventoryCondition
+  knownIssues?: string | null
+  expectedSalePrice?: string | null
+  status: InventoryStatus
+  purchaseId?: number | null
+  saleId?: number | null
+  repairCost?: number | null
+  activities: InventoryActivity[]
+}
+
+export type InventoryListResponse = {
+  data: InventoryListItem[]
+  meta: {
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+  }
+}
+
+export type UpdateInventoryItemPayload = {
+  imei?: string
+  serialNumber?: string | null
+  brand?: string
+  model?: string
+  storage?: string | null
+  color?: string | null
+  condition?: InventoryCondition
+  status?: InventoryStatus
+  knownIssues?: string | null
+  expectedSalePrice?: number | null
+  repairCost?: number | null
+}
+
+export type CreateInventoryItemPayload = {
+  imei?: string
+  serialNumber?: string
+  brand: string
+  model: string
+  storage?: string
+  color?: string
+  condition: InventoryCondition
+  status?: 'IN_STOCK' | 'SOLD'
+  knownIssues?: string
+  expectedSalePrice: number
+  isPhonePurchased?: boolean
+  paymentMethod?: 'CASH' | 'CARD' | 'OTHER'
+  paymentType?: 'FULL_PAYMENT' | 'PAY_LATER'
+  initialPayment?: number
+  customer?: {
+    fullName?: string
+    phoneNumber?: string
+    address?: string
+  }
+  needsRepair?: boolean
+  repairDescription?: string
+  repairCost?: number
+}
+
+export class ApiRequestError extends Error {
+  status?: number
+
+  constructor(message: string, status?: number) {
+    super(message)
+    this.name = 'ApiRequestError'
+    this.status = status
+  }
+}
+
+function normalizeApiError(error: unknown): ApiRequestError {
+  const axiosError = error as AxiosError<{ message?: string | string[] }>
+  const status = axiosError.response?.status
+  const messagePayload = axiosError.response?.data?.message
+  const message = Array.isArray(messagePayload)
+    ? messagePayload.join(', ')
+    : messagePayload
+
+  return new ApiRequestError(message || axiosError.message || 'Request failed', status)
+}
+
+async function request<T>(call: () => Promise<{ data: T }>): Promise<T> {
+  try {
+    const response = await call()
+    return response.data
+  } catch (error) {
+    throw normalizeApiError(error)
+  }
+}
+
+export async function listInventoryItems(
+  params: InventoryListParams = {},
+): Promise<InventoryListResponse> {
+  return request(() => api.get('/api/inventory-items', { params }))
+}
+
+export async function updateInventoryItem(
+  id: number,
+  body: UpdateInventoryItemPayload,
+): Promise<void> {
+  await request(() => api.patch(`/api/inventory-items/${id}`, body))
+}
+
+export async function createInventoryItem(
+  body: CreateInventoryItemPayload,
+): Promise<void> {
+  await request(() => api.post('/api/inventory-items', body))
+}
+
+export async function deleteInventoryItem(id: number): Promise<void> {
+  await request(() => api.delete(`/api/inventory-items/${id}`))
+}
+
+export async function getInventoryItem(id: number): Promise<InventoryDetailItem> {
+  return request(() => api.get(`/api/inventory-items/${id}`))
+}
