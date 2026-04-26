@@ -6,14 +6,23 @@ import { GlobalExceptionFilter } from './common/filters/global-exception.filter'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const normalizeOrigin = (value: string) =>
+    value.trim().toLowerCase().replace(/\/+$/, '');
+
   const frontendOrigins = [
     ...(process.env.FRONTEND_URLS
-      ? process.env.FRONTEND_URLS.split(',').map((origin) => origin.trim())
+      ? process.env.FRONTEND_URLS.split(',').map((origin) =>
+          normalizeOrigin(origin),
+        )
       : []),
-    ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL.trim()] : []),
+    ...(process.env.FRONTEND_URL
+      ? [normalizeOrigin(process.env.FRONTEND_URL)]
+      : []),
     'http://localhost:5173',
     'http://127.0.0.1:5173',
-  ].filter(Boolean);
+  ]
+    .map((origin) => normalizeOrigin(origin))
+    .filter(Boolean);
 
   app.enableCors({
     origin: (origin, callback) => {
@@ -22,7 +31,7 @@ async function bootstrap() {
         return;
       }
 
-      const normalizedOrigin = origin.toLowerCase();
+      const normalizedOrigin = normalizeOrigin(origin);
       const isConfiguredOrigin = frontendOrigins.some(
         (allowedOrigin) => allowedOrigin.toLowerCase() === normalizedOrigin,
       );
